@@ -52,8 +52,12 @@ export default function HomeScreen({ log, upLog, data, last5, fmtT, totalSt, stu
       <View style={{ backgroundColor:T.aDim, borderWidth:1, borderColor:T.aBd,
         borderRadius:18, padding:18, marginBottom:12 }}>
         <Text style={{ fontSize:10, fontWeight:'700', color:T.accent, letterSpacing:1.2, textTransform:'uppercase', marginBottom:4 }}>{greet}</Text>
-        <Text style={{ fontSize:26, fontWeight:'800', color:T.text, letterSpacing:-0.5 }}>Dhanush Jaddu</Text>
-        <Text style={{ fontSize:11, color:T.sub, marginTop:5 }}>
+        <View style={{ flexDirection:'row', alignItems:'baseline', gap:4 }}>
+          <Text style={{ fontSize:26, fontWeight:'800', color:T.accent, letterSpacing:-0.5 }}>DJ'</Text>
+          <Text style={{ fontSize:26, fontWeight:'800', color:T.text, letterSpacing:-0.5 }}>Tracker</Text>
+        </View>
+        <Text style={{ fontSize:12, color:T.sub, marginTop:3 }}>Dhanush Jaddu</Text>
+        <Text style={{ fontSize:10, color:T.dim, marginTop:2 }}>
           {new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}
         </Text>
       </View>

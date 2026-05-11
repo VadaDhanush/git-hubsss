@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Platform, Animated, Dimensions, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Platform, Animated, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Path, Rect, Polyline, Circle, Line } from 'react-native-svg';
+import Svg, { Path, Rect, Polyline, Circle, Line, Defs, LinearGradient, Stop } from 'react-native-svg';
 
-import { darkT, lightT } from './src/theme/colors';
+import { darkT, lightT, TAB_COLORS } from './src/theme/colors';
 import { useStore } from './src/hooks/useStore';
 import HomeScreen    from './src/screens/HomeScreen';
 import ExpenseScreen from './src/screens/ExpenseScreen';
@@ -24,18 +24,18 @@ function CheckIc({c,s}) { return <Svg width={s} height={s} viewBox="0 0 24 24" f
 function SunIc({c})     { return <Svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><Circle cx="12" cy="12" r="5"/><Line x1="12" y1="1" x2="12" y2="3"/><Line x1="12" y1="21" x2="12" y2="23"/><Line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><Line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><Line x1="1" y1="12" x2="3" y2="12"/><Line x1="21" y1="12" x2="23" y2="12"/></Svg>; }
 function MoonIc({c})    { return <Svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><Path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></Svg>; }
 
-// ── Header ────────────────────────────────────────────────────
+// ── Gradient Header ──────────────────────────────────────────
 function AppHeader({ T, dark, setDark }) {
   const insets = useSafeAreaInsets();
   const today  = new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
   return (
     <View style={{
-      backgroundColor: T.hdrBg || T.bg,
+      backgroundColor: T.hdrGradFrom || T.bg,
       paddingTop: insets.top + 6,
-      paddingBottom: 12,
+      paddingBottom: 14,
       paddingHorizontal: 18,
       borderBottomWidth: 1,
-      borderBottomColor: T.border,
+      borderBottomColor: T.glassBd || T.border,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-end',
@@ -45,12 +45,15 @@ function AppHeader({ T, dark, setDark }) {
           <View style={{ width:6, height:6, borderRadius:3, backgroundColor:T.green }}/>
           <Text style={{ fontSize:9, fontWeight:'700', color:T.green, letterSpacing:1.4 }}>LIVE</Text>
         </View>
-        <Text style={{ fontSize:17, fontWeight:'800', color:T.text, letterSpacing:-0.3 }}>Dhanush Jaddu</Text>
+        <View style={{ flexDirection:'row', alignItems:'baseline', gap:6 }}>
+          <Text style={{ fontSize:17, fontWeight:'800', color:T.accent, letterSpacing:-0.3 }}>DJ'</Text>
+          <Text style={{ fontSize:17, fontWeight:'800', color:T.text, letterSpacing:-0.3 }}>Tracker</Text>
+        </View>
         <Text style={{ fontSize:10, color:T.dim, marginTop:1 }}>{today}</Text>
       </View>
       <TouchableOpacity onPress={() => setDark(d => !d)}
         style={{ flexDirection:'row', alignItems:'center', gap:6,
-          backgroundColor:T.card, borderWidth:1, borderColor:T.border,
+          backgroundColor: T.glass || T.card, borderWidth:1, borderColor: T.glassBd || T.border,
           borderRadius:20, paddingHorizontal:12, paddingVertical:7 }}>
         {dark ? <SunIc c={T.text}/> : <MoonIc c={T.text}/>}
         <Text style={{ fontSize:12, fontWeight:'600', color:T.sub }}>{dark?'Light':'Dark'}</Text>
@@ -59,31 +62,55 @@ function AppHeader({ T, dark, setDark }) {
   );
 }
 
-// ── Tab Bar ───────────────────────────────────────────────────
+// ── Animated Tab Icon ─────────────────────────────────────────
+function AnimatedTabIcon({ Ic, col, focused, s }) {
+  const scale = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (focused) {
+      Animated.sequence([
+        Animated.spring(scale, { toValue:1.2, friction:3, tension:120, useNativeDriver:true }),
+        Animated.spring(scale, { toValue:1, friction:5, tension:80, useNativeDriver:true }),
+      ]).start();
+    }
+  }, [focused]);
+
+  return (
+    <Animated.View style={{ padding:5, borderRadius:10,
+      backgroundColor: focused ? `${col}20` : 'transparent',
+      transform: [{ scale }],
+    }}>
+      <Ic c={col} s={s}/>
+    </Animated.View>
+  );
+}
+
+// ── Color-Coded Tab Bar ──────────────────────────────────────
 function AppTabBar({ state, descriptors, navigation, T }) {
   const insets = useSafeAreaInsets();
   const ICONS  = [HomeIc, WalletIc, GymIc, FoodIc, CheckIc];
   const LABELS = ['Home','Expenses','Gym','Diet','Habits'];
+  const COLORS = [TAB_COLORS.Home, TAB_COLORS.Expenses, TAB_COLORS.Gym, TAB_COLORS.Diet, TAB_COLORS.Habits];
   return (
     <View style={{
       flexDirection: 'row',
-      backgroundColor: T.navBg || T.bg,
+      backgroundColor: T.hdrGradFrom || T.bg,
       borderTopWidth: 1,
-      borderTopColor: T.border,
+      borderTopColor: T.glassBd || T.border,
       paddingTop: 8,
       paddingBottom: insets.bottom + 6,
     }}>
       {state.routes.map((route, idx) => {
         const focused = state.index === idx;
         const Ic = ICONS[idx];
-        const col = focused ? T.accent : T.dim;
+        const tabCol = COLORS[idx];
+        const col = focused ? tabCol : T.dim;
         return (
           <TouchableOpacity key={route.key} onPress={() => navigation.navigate(route.name)}
             style={{ flex:1, alignItems:'center', gap:4 }}>
-            <View style={{ padding:5, borderRadius:10, backgroundColor:focused?T.aDim:'transparent' }}>
-              <Ic c={col} s={20}/>
-            </View>
+            <AnimatedTabIcon Ic={Ic} col={col} focused={focused} s={20}/>
             <Text style={{ fontSize:10, fontWeight:focused?'700':'400', color:col, letterSpacing:0.4 }}>{LABELS[idx]}</Text>
+            {focused && <View style={{ width:4, height:4, borderRadius:2, backgroundColor:tabCol, marginTop:1 }}/>}
           </TouchableOpacity>
         );
       })}
@@ -102,27 +129,30 @@ function SplashScreen({ onFinish, T }) {
   const tagFade     = useRef(new Animated.Value(0)).current;
   const exitFade    = useRef(new Animated.Value(1)).current;
   const exitScale   = useRef(new Animated.Value(1)).current;
+  const glowPulse   = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
-    // Entry animations
+    // Glow pulse loop
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowPulse, { toValue:0.6, duration:800, useNativeDriver:true }),
+        Animated.timing(glowPulse, { toValue:0.3, duration:800, useNativeDriver:true }),
+      ])
+    ).start();
+
     Animated.sequence([
-      // Fade in + scale up the main content
       Animated.parallel([
         Animated.timing(fadeAnim,  { toValue:1, duration:600, useNativeDriver:true }),
         Animated.spring(scaleAnim, { toValue:1, friction:8, tension:40, useNativeDriver:true }),
         Animated.timing(slideUp,   { toValue:0, duration:600, useNativeDriver:true }),
       ]),
-      // Animate the 3 loading dots one by one
       Animated.stagger(150, [
         Animated.spring(dotScale1, { toValue:1, friction:5, tension:80, useNativeDriver:true }),
         Animated.spring(dotScale2, { toValue:1, friction:5, tension:80, useNativeDriver:true }),
         Animated.spring(dotScale3, { toValue:1, friction:5, tension:80, useNativeDriver:true }),
       ]),
-      // Fade in tagline
       Animated.timing(tagFade, { toValue:1, duration:400, useNativeDriver:true }),
-      // Hold for a moment
       Animated.delay(800),
-      // Exit animation
       Animated.parallel([
         Animated.timing(exitFade,  { toValue:0, duration:400, useNativeDriver:true }),
         Animated.timing(exitScale, { toValue:1.1, duration:400, useNativeDriver:true }),
@@ -131,7 +161,7 @@ function SplashScreen({ onFinish, T }) {
   }, []);
 
   const hour  = new Date().getHours();
-  const greet = hour<5?'Late Night Owl':'Good '+(hour<12?'Morning':'Afternoon');
+  const greet = hour<5?'Late Night Owl':hour<12?'Good Morning':hour<17?'Good Afternoon':'Good Evening';
 
   return (
     <Animated.View style={{
@@ -148,41 +178,47 @@ function SplashScreen({ onFinish, T }) {
         opacity: fadeAnim,
         transform: [{ scale: scaleAnim }, { translateY: slideUp }],
       }}>
-        {/* Accent glow circle */}
-        <View style={{
-          width: 90, height: 90, borderRadius: 45,
-          backgroundColor: T.aDim,
-          borderWidth: 2, borderColor: T.aBd,
-          alignItems: 'center', justifyContent: 'center',
-          marginBottom: 24,
-        }}>
-          <Text style={{ fontSize: 40 }}>DJ</Text>
+        {/* Logo with glow */}
+        <View style={{ marginBottom: 28, alignItems:'center' }}>
+          <Animated.View style={{
+            position:'absolute', width:120, height:120, borderRadius:60,
+            backgroundColor: T.accent, opacity: glowPulse,
+          }}/>
+          <View style={{
+            width: 96, height: 96, borderRadius: 48,
+            backgroundColor: T.card,
+            borderWidth: 2, borderColor: T.aBd,
+            alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Text style={{ fontSize: 20, fontWeight: '800', color: T.accent, letterSpacing: -0.5 }}>DJ'</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: T.sub, letterSpacing: 2, marginTop: -2 }}>TRACKER</Text>
+          </View>
         </View>
 
         {/* Greeting */}
         <Text style={{
-          fontSize: 14, fontWeight: '700', color: T.accent,
-          letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8,
+          fontSize: 12, fontWeight: '600', color: T.sub,
+          letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 8,
         }}>{greet}</Text>
 
         {/* Name */}
         <Text style={{
-          fontSize: 32, fontWeight: '800', color: T.text,
-          letterSpacing: -0.5, marginBottom: 6,
+          fontSize: 28, fontWeight: '800', color: T.text,
+          letterSpacing: -0.5, marginBottom: 4,
         }}>Dhanush Jaddu</Text>
 
         {/* Tagline */}
         <Animated.Text style={{
-          fontSize: 12, color: T.sub, letterSpacing: 0.5,
-          opacity: tagFade, marginBottom: 28,
+          fontSize: 12, color: T.dim, letterSpacing: 0.5,
+          opacity: tagFade, marginBottom: 32,
         }}>Track Everything. Stay Consistent.</Animated.Text>
 
         {/* Loading dots */}
-        <View style={{ flexDirection: 'row', gap: 10 }}>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
           {[dotScale1, dotScale2, dotScale3].map((dot, i) => (
             <Animated.View key={i} style={{
-              width: 8, height: 8, borderRadius: 4,
-              backgroundColor: i === 1 ? T.accent : T.aBd,
+              width: 6, height: 6, borderRadius: 3,
+              backgroundColor: [TAB_COLORS.Home, TAB_COLORS.Expenses, TAB_COLORS.Gym][i],
               transform: [{ scale: dot }],
             }} />
           ))}
@@ -191,7 +227,7 @@ function SplashScreen({ onFinish, T }) {
 
       {/* Bottom branding */}
       <View style={{ position: 'absolute', bottom: 50, alignItems: 'center' }}>
-        <Text style={{ fontSize: 10, color: T.dim, letterSpacing: 1 }}>BUILT WITH DISCIPLINE</Text>
+        <Text style={{ fontSize: 9, color: T.dim, letterSpacing: 1.5 }}>BUILT WITH DISCIPLINE</Text>
       </View>
     </Animated.View>
   );
@@ -225,7 +261,7 @@ function Main() {
 
   if (!loaded) return (
     <View style={{ flex:1, backgroundColor:T.bg, alignItems:'center', justifyContent:'center' }}>
-      <Text style={{ color:T.accent, fontSize:16, fontWeight:'700' }}>Loading…</Text>
+      <Text style={{ color:T.accent, fontSize:16, fontWeight:'700' }}>Loading...</Text>
     </View>
   );
 
