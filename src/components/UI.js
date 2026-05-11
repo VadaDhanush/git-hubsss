@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import Svg, { Circle, Line } from 'react-native-svg';
 
-// ── Card ──────────────────────────────────────────────────────
+// ── Card (with subtle glass effect) ───────────────────────────
 export function Card({ children, style, accent, T }) {
   return (
     <View style={[{
       backgroundColor: T.card,
       borderWidth: 1,
-      borderColor: accent ? T.aBd : T.border,
+      borderColor: accent ? T.aBd : (T.glassBd || T.border),
       borderRadius: 16,
       padding: 16,
       marginBottom: 10,
       overflow: 'hidden',
     }, style]}>
+      {/* Subtle glass shimmer at top */}
+      <View style={{ position:'absolute', top:0, left:0, right:0, height:1,
+        backgroundColor: T.glassBd || 'transparent' }}/>
       {accent && <View style={{ position:'absolute', top:0, left:0, width:3, bottom:0, backgroundColor:T.accent, borderTopLeftRadius:3, borderBottomLeftRadius:3 }}/>}
       {children}
     </View>

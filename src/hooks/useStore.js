@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const SK = 'dj_tracker_rn_v1';
 
 const DEF = {
-  profile: { name:'Dhanush Jaddu', goal_study:6, goal_water:8, goal_steps:8000, goal_weight:70 },
+  profile: { name:'Dhanush Jaddu', goal_study:6, goal_water:8, goal_steps:8000, goal_weight:70, goal_budget:500 },
   logs: {}
 };
 
@@ -18,6 +18,7 @@ export const blank = () => ({
   macros:{ cal:'', pro:'', carb:'', fat:'' },
   workouts:[],
   habits:{ meditation:false, reading:false, no_junk:false, walk:false },
+  expenses:[],
   notes:''
 });
 

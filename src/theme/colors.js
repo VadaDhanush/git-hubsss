@@ -1,39 +1,31 @@
+// Tab accent colors for color-coded tabs
+export const TAB_COLORS = {
+  Home:     '#6c63ff',  // purple
+  Expenses: '#f59e0b',  // amber
+  Gym:      '#f43f5e',  // rose
+  Diet:     '#10b981',  // emerald
+  Habits:   '#38bdf8',  // sky
+};
+
 export const darkT = {
-  bg:      '#0c0c0e',
-  bgAlt:   '#111114',
-  card:    '#16161a',
-  cardHi:  '#1d1d22',
-  border:  '#222228',
+  bg:      '#08080a',
+  bgAlt:   '#0e0e12',
+  card:    '#131318',
+  cardHi:  '#1a1a20',
+  border:  '#1f1f28',
   text:    '#f0eff4',
-  sub:     '#72717a',
-  dim:     '#3a3a42',
+  sub:     '#6e6d78',
+  dim:     '#35353e',
   accent:  '#6c63ff',
-  aDim:    'rgba(108,99,255,0.14)',
-  aBd:     'rgba(108,99,255,0.30)',
+  aDim:    'rgba(108,99,255,0.12)',
+  aBd:     'rgba(108,99,255,0.25)',
   green:   '#10b981',
   amber:   '#f59e0b',
   red:     '#f43f5e',
   purple:  '#a78bfa',
   sky:     '#38bdf8',
+  hdrGradFrom: '#0f0e18',
+  glass:   'rgba(255,255,255,0.04)',
+  glassBd: 'rgba(255,255,255,0.08)',
   isDark:  true,
-};
-
-export const lightT = {
-  bg:      '#f4f3fa',
-  bgAlt:   '#eceaf6',
-  card:    '#ffffff',
-  cardHi:  '#f6f5fc',
-  border:  '#e3e1f0',
-  text:    '#1a1928',
-  sub:     '#6a6880',
-  dim:     '#aeabca',
-  accent:  '#5b52f0',
-  aDim:    'rgba(91,82,240,0.10)',
-  aBd:     'rgba(91,82,240,0.28)',
-  green:   '#059669',
-  amber:   '#d97706',
-  red:     '#e11d48',
-  purple:  '#7c3aed',
-  sky:     '#0284c7',
-  isDark:  false,
 };
