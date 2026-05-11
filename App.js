@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Platform, Animated, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Animated, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Path, Rect, Polyline, Circle, Line, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path, Rect, Polyline, Circle, Line } from 'react-native-svg';
 
-import { darkT, lightT, TAB_COLORS } from './src/theme/colors';
+import { darkT, TAB_COLORS } from './src/theme/colors';
 import { useStore } from './src/hooks/useStore';
 import HomeScreen    from './src/screens/HomeScreen';
 import ExpenseScreen from './src/screens/ExpenseScreen';
@@ -14,6 +14,7 @@ import DietScreen    from './src/screens/DietScreen';
 import HabitsScreen  from './src/screens/HabitsScreen';
 
 const Tab = createBottomTabNavigator();
+const T = darkT;
 
 // ── Nav icons ─────────────────────────────────────────────────
 function HomeIc({c,s})  { return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><Polyline points="9 22 9 12 15 12 15 22"/></Svg>; }
@@ -21,43 +22,34 @@ function WalletIc({c,s}){ return <Svg width={s} height={s} viewBox="0 0 24 24" f
 function GymIc({c,s})   { return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Path d="M6 5v14M18 5v14M4 7h4M16 7h4M4 17h4M16 17h4M2 10h4M18 10h4M2 14h4M18 14h4"/></Svg>; }
 function FoodIc({c,s})  { return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Path d="M12 2a7 7 0 017 7c0 3.87-3.13 7-7 7S5 12.87 5 9a7 7 0 017-7z"/><Path d="M12 16v6M9 19h6"/></Svg>; }
 function CheckIc({c,s}) { return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Rect x="3" y="3" width="7" height="7" rx="1"/><Rect x="14" y="3" width="7" height="7" rx="1"/><Rect x="3" y="14" width="7" height="7" rx="1"/><Polyline points="14 18 16 20 20 15"/></Svg>; }
-function SunIc({c})     { return <Svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><Circle cx="12" cy="12" r="5"/><Line x1="12" y1="1" x2="12" y2="3"/><Line x1="12" y1="21" x2="12" y2="23"/><Line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><Line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><Line x1="1" y1="12" x2="3" y2="12"/><Line x1="21" y1="12" x2="23" y2="12"/></Svg>; }
-function MoonIc({c})    { return <Svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><Path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></Svg>; }
 
-// ── Gradient Header ──────────────────────────────────────────
-function AppHeader({ T, dark, setDark }) {
+// ── Header (dark only, no toggle) ────────────────────────────
+function AppHeader() {
   const insets = useSafeAreaInsets();
   const today  = new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
   return (
     <View style={{
-      backgroundColor: T.hdrGradFrom || T.bg,
-      paddingTop: insets.top + 6,
+      backgroundColor: T.hdrGradFrom,
+      paddingTop: insets.top + 8,
       paddingBottom: 14,
-      paddingHorizontal: 18,
+      paddingHorizontal: 20,
       borderBottomWidth: 1,
-      borderBottomColor: T.glassBd || T.border,
+      borderBottomColor: T.glassBd,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-end',
     }}>
       <View>
-        <View style={{ flexDirection:'row', alignItems:'center', gap:5, marginBottom:2 }}>
+        <View style={{ flexDirection:'row', alignItems:'center', gap:5, marginBottom:3 }}>
           <View style={{ width:6, height:6, borderRadius:3, backgroundColor:T.green }}/>
           <Text style={{ fontSize:9, fontWeight:'700', color:T.green, letterSpacing:1.4 }}>LIVE</Text>
         </View>
-        <View style={{ flexDirection:'row', alignItems:'baseline', gap:6 }}>
-          <Text style={{ fontSize:17, fontWeight:'800', color:T.accent, letterSpacing:-0.3 }}>DJ'</Text>
-          <Text style={{ fontSize:17, fontWeight:'800', color:T.text, letterSpacing:-0.3 }}>Tracker</Text>
+        <View style={{ flexDirection:'row', alignItems:'baseline' }}>
+          <Text style={{ fontSize:18, fontWeight:'800', color:T.accent, letterSpacing:-0.3 }}>DJ'</Text>
+          <Text style={{ fontSize:18, fontWeight:'800', color:T.text, letterSpacing:-0.3 }}>Tracker</Text>
         </View>
-        <Text style={{ fontSize:10, color:T.dim, marginTop:1 }}>{today}</Text>
+        <Text style={{ fontSize:10, color:T.dim, marginTop:2 }}>{today}</Text>
       </View>
-      <TouchableOpacity onPress={() => setDark(d => !d)}
-        style={{ flexDirection:'row', alignItems:'center', gap:6,
-          backgroundColor: T.glass || T.card, borderWidth:1, borderColor: T.glassBd || T.border,
-          borderRadius:20, paddingHorizontal:12, paddingVertical:7 }}>
-        {dark ? <SunIc c={T.text}/> : <MoonIc c={T.text}/>}
-        <Text style={{ fontSize:12, fontWeight:'600', color:T.sub }}>{dark?'Light':'Dark'}</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -76,8 +68,8 @@ function AnimatedTabIcon({ Ic, col, focused, s }) {
   }, [focused]);
 
   return (
-    <Animated.View style={{ padding:5, borderRadius:10,
-      backgroundColor: focused ? `${col}20` : 'transparent',
+    <Animated.View style={{ padding:6, borderRadius:12,
+      backgroundColor: focused ? `${col}18` : 'transparent',
       transform: [{ scale }],
     }}>
       <Ic c={col} s={s}/>
@@ -86,7 +78,7 @@ function AnimatedTabIcon({ Ic, col, focused, s }) {
 }
 
 // ── Color-Coded Tab Bar ──────────────────────────────────────
-function AppTabBar({ state, descriptors, navigation, T }) {
+function AppTabBar({ state, descriptors, navigation }) {
   const insets = useSafeAreaInsets();
   const ICONS  = [HomeIc, WalletIc, GymIc, FoodIc, CheckIc];
   const LABELS = ['Home','Expenses','Gym','Diet','Habits'];
@@ -94,11 +86,11 @@ function AppTabBar({ state, descriptors, navigation, T }) {
   return (
     <View style={{
       flexDirection: 'row',
-      backgroundColor: T.hdrGradFrom || T.bg,
+      backgroundColor: T.hdrGradFrom,
       borderTopWidth: 1,
-      borderTopColor: T.glassBd || T.border,
-      paddingTop: 8,
-      paddingBottom: insets.bottom + 6,
+      borderTopColor: T.glassBd,
+      paddingTop: 10,
+      paddingBottom: insets.bottom + 8,
     }}>
       {state.routes.map((route, idx) => {
         const focused = state.index === idx;
@@ -109,7 +101,7 @@ function AppTabBar({ state, descriptors, navigation, T }) {
           <TouchableOpacity key={route.key} onPress={() => navigation.navigate(route.name)}
             style={{ flex:1, alignItems:'center', gap:4 }}>
             <AnimatedTabIcon Ic={Ic} col={col} focused={focused} s={20}/>
-            <Text style={{ fontSize:10, fontWeight:focused?'700':'400', color:col, letterSpacing:0.4 }}>{LABELS[idx]}</Text>
+            <Text style={{ fontSize:10, fontWeight:focused?'700':'400', color:col, letterSpacing:0.3 }}>{LABELS[idx]}</Text>
             {focused && <View style={{ width:4, height:4, borderRadius:2, backgroundColor:tabCol, marginTop:1 }}/>}
           </TouchableOpacity>
         );
@@ -118,8 +110,41 @@ function AppTabBar({ state, descriptors, navigation, T }) {
   );
 }
 
-// ── Splash Screen ─────────────────────────────────────────────
-function SplashScreen({ onFinish, T }) {
+// ── Particle (for splash screen) ─────────────────────────────
+function Particle({ x, y, size, delay }) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const anim = Animated.loop(
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.parallel([
+          Animated.timing(opacity, { toValue:0.4, duration:1200, useNativeDriver:true }),
+          Animated.timing(translateY, { toValue:-40, duration:2400, useNativeDriver:true }),
+        ]),
+        Animated.parallel([
+          Animated.timing(opacity, { toValue:0, duration:1200, useNativeDriver:true }),
+          Animated.timing(translateY, { toValue:0, duration:0, useNativeDriver:true }),
+        ]),
+      ])
+    );
+    anim.start();
+    return () => anim.stop();
+  }, []);
+
+  return (
+    <Animated.View style={{
+      position:'absolute', left:x, top:y,
+      width:size, height:size, borderRadius:size/2,
+      backgroundColor: T.accent,
+      opacity, transform:[{ translateY }],
+    }}/>
+  );
+}
+
+// ── Splash Screen (with particles) ───────────────────────────
+function SplashScreen({ onFinish }) {
   const fadeAnim    = useRef(new Animated.Value(0)).current;
   const scaleAnim   = useRef(new Animated.Value(0.8)).current;
   const slideUp     = useRef(new Animated.Value(30)).current;
@@ -129,14 +154,27 @@ function SplashScreen({ onFinish, T }) {
   const tagFade     = useRef(new Animated.Value(0)).current;
   const exitFade    = useRef(new Animated.Value(1)).current;
   const exitScale   = useRef(new Animated.Value(1)).current;
-  const glowPulse   = useRef(new Animated.Value(0.3)).current;
+  const glowPulse   = useRef(new Animated.Value(0.2)).current;
+
+  // Particles data
+  const particles = useRef([
+    { x:'10%', y:'15%', size:3, delay:0 },
+    { x:'25%', y:'70%', size:2, delay:400 },
+    { x:'75%', y:'20%', size:4, delay:200 },
+    { x:'85%', y:'60%', size:2, delay:600 },
+    { x:'50%', y:'80%', size:3, delay:300 },
+    { x:'15%', y:'45%', size:2, delay:800 },
+    { x:'65%', y:'40%', size:3, delay:100 },
+    { x:'40%', y:'25%', size:2, delay:500 },
+    { x:'90%', y:'35%', size:3, delay:700 },
+    { x:'30%', y:'55%', size:2, delay:900 },
+  ]).current;
 
   useEffect(() => {
-    // Glow pulse loop
     Animated.loop(
       Animated.sequence([
-        Animated.timing(glowPulse, { toValue:0.6, duration:800, useNativeDriver:true }),
-        Animated.timing(glowPulse, { toValue:0.3, duration:800, useNativeDriver:true }),
+        Animated.timing(glowPulse, { toValue:0.5, duration:1000, useNativeDriver:true }),
+        Animated.timing(glowPulse, { toValue:0.2, duration:1000, useNativeDriver:true }),
       ])
     ).start();
 
@@ -173,6 +211,11 @@ function SplashScreen({ onFinish, T }) {
       opacity: exitFade,
       transform: [{ scale: exitScale }],
     }}>
+      {/* Particles background */}
+      {particles.map((p, i) => (
+        <Particle key={i} x={p.x} y={p.y} size={p.size} delay={p.delay} />
+      ))}
+
       <Animated.View style={{
         alignItems: 'center',
         opacity: fadeAnim,
@@ -233,14 +276,20 @@ function SplashScreen({ onFinish, T }) {
   );
 }
 
+// ── Fade-In Screen Wrapper ───────────────────────────────────
+function FadeScreen({ children }) {
+  const opacity = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(opacity, { toValue:1, duration:250, useNativeDriver:true }).start();
+  }, []);
+  return <Animated.View style={{ flex:1, opacity }}>{children}</Animated.View>;
+}
+
 // ── Main ──────────────────────────────────────────────────────
 function Main() {
-  const [dark, setDark] = useState(true);
   const [showSplash, setShowSplash] = useState(true);
-  const T = dark ? darkT : lightT;
   const { data, log, upLog, loaded } = useStore();
 
-  const getTK  = () => new Date().toISOString().split('T')[0];
   const last5  = useCallback(fn => Array.from({length:5}).map((_,i) => {
     const d = new Date(); d.setDate(d.getDate()-(4-i));
     const k = d.toISOString().split('T')[0];
@@ -257,7 +306,29 @@ function Main() {
   const totalSt  = (log.sessions||[]).reduce((a,s)=>a+s.dur,0);
   const studyPct = Math.min(100,(totalSt/(data.profile.goal_study*3600))*100);
 
-  const shared = { log, upLog, data, last5, T };
+  // Streak calculation
+  const calcStreak = () => {
+    let streak = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const k = d.toISOString().split('T')[0];
+      const dayLog = data.logs[k];
+      if (!dayLog) break;
+      const hasActivity = (dayLog.steps && parseInt(dayLog.steps) > 0) ||
+        (dayLog.sessions && dayLog.sessions.length > 0) ||
+        (dayLog.water && dayLog.water > 0) ||
+        (dayLog.workouts && dayLog.workouts.length > 0) ||
+        (dayLog.mood && dayLog.mood !== '');
+      if (hasActivity) streak++;
+      else break;
+    }
+    return streak;
+  };
+  const streak = calcStreak();
+
+  const shared = { log, upLog, data, last5, T, streak };
 
   if (!loaded) return (
     <View style={{ flex:1, backgroundColor:T.bg, alignItems:'center', justifyContent:'center' }}>
@@ -267,27 +338,27 @@ function Main() {
 
   return (
     <View style={{ flex:1, backgroundColor:T.bg }}>
-      {showSplash && <SplashScreen T={T} onFinish={() => setShowSplash(false)} />}
-      <StatusBar barStyle={dark?'light-content':'dark-content'} backgroundColor={T.bg}/>
-      <AppHeader T={T} dark={dark} setDark={setDark}/>
+      {showSplash && <SplashScreen onFinish={() => setShowSplash(false)} />}
+      <StatusBar barStyle="light-content" backgroundColor={T.bg}/>
+      <AppHeader/>
       <NavigationContainer>
         <Tab.Navigator
-          tabBar={props => <AppTabBar {...props} T={T}/>}
+          tabBar={props => <AppTabBar {...props}/>}
           screenOptions={{ headerShown:false }}>
           <Tab.Screen name="Home">
-            {() => <HomeScreen {...shared} fmtT={fmtT} totalSt={totalSt} studyPct={studyPct}/>}
+            {() => <FadeScreen><HomeScreen {...shared} fmtT={fmtT} totalSt={totalSt} studyPct={studyPct}/></FadeScreen>}
           </Tab.Screen>
           <Tab.Screen name="Expenses">
-            {() => <ExpenseScreen {...shared}/>}
+            {() => <FadeScreen><ExpenseScreen {...shared}/></FadeScreen>}
           </Tab.Screen>
           <Tab.Screen name="Gym">
-            {() => <GymScreen {...shared}/>}
+            {() => <FadeScreen><GymScreen {...shared}/></FadeScreen>}
           </Tab.Screen>
           <Tab.Screen name="Diet">
-            {() => <DietScreen {...shared}/>}
+            {() => <FadeScreen><DietScreen {...shared}/></FadeScreen>}
           </Tab.Screen>
           <Tab.Screen name="Habits">
-            {() => <HabitsScreen {...shared}/>}
+            {() => <FadeScreen><HabitsScreen {...shared}/></FadeScreen>}
           </Tab.Screen>
         </Tab.Navigator>
       </NavigationContainer>

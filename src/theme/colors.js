@@ -24,37 +24,8 @@ export const darkT = {
   red:     '#f43f5e',
   purple:  '#a78bfa',
   sky:     '#38bdf8',
-  // Gradient header colors
   hdrGradFrom: '#0f0e18',
-  hdrGradTo:   '#08080a',
-  // Glass effect
   glass:   'rgba(255,255,255,0.04)',
   glassBd: 'rgba(255,255,255,0.08)',
   isDark:  true,
-};
-
-export const lightT = {
-  bg:      '#f6f5fb',
-  bgAlt:   '#edecf5',
-  card:    '#ffffff',
-  cardHi:  '#f8f7fd',
-  border:  '#e5e3f1',
-  text:    '#1a1928',
-  sub:     '#6a6880',
-  dim:     '#b0adcc',
-  accent:  '#5b52f0',
-  aDim:    'rgba(91,82,240,0.08)',
-  aBd:     'rgba(91,82,240,0.22)',
-  green:   '#059669',
-  amber:   '#d97706',
-  red:     '#e11d48',
-  purple:  '#7c3aed',
-  sky:     '#0284c7',
-  // Gradient header colors
-  hdrGradFrom: '#eeedfa',
-  hdrGradTo:   '#f6f5fb',
-  // Glass effect
-  glass:   'rgba(91,82,240,0.03)',
-  glassBd: 'rgba(91,82,240,0.08)',
-  isDark:  false,
 };
