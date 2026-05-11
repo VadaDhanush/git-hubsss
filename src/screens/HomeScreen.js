@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Card, Lbl, PBar, Ring, Bar5, Field, StepsArc } from '../components/UI';
+import { Card, Lbl, PBar, Ring, Bar5, Field, StepsArc, Btn } from '../components/UI';
 
 const MOODS = [{e:'😞',l:'Low'},{e:'😐',l:'Meh'},{e:'🙂',l:'OK'},{e:'😄',l:'Great'},{e:'🤩',l:'Best'}];
 
@@ -12,6 +12,38 @@ export default function HomeScreen({ log, upLog, data, last5, fmtT, totalSt, stu
 
   const hour  = new Date().getHours();
   const greet = hour<5?'Late night':hour<12?'Good morning':hour<17?'Good afternoon':'Good evening';
+
+  // ── Study Timer State ────────────────────────────────────────
+  const [timer,   setTimer]   = useState(0);
+  const [running, setRunning] = useState(false);
+  const [subject, setSubject] = useState('');
+  const ivRef = useRef(null);
+
+  useEffect(() => {
+    if (running) {
+      ivRef.current = setInterval(() => setTimer(t => t+1), 1000);
+    } else {
+      clearInterval(ivRef.current);
+    }
+    return () => clearInterval(ivRef.current);
+  }, [running]);
+
+  const fmtTimer = s => {
+    const h  = String(Math.floor(s/3600)).padStart(2,'0');
+    const m  = String(Math.floor((s%3600)/60)).padStart(2,'0');
+    const sc = String(s%60).padStart(2,'0');
+    return `${h}:${m}:${sc}`;
+  };
+
+  const stopTimer = () => {
+    if (timer > 10 && subject.trim()) {
+      upLog({ sessions:[...(log.sessions||[]), {
+        s:subject.trim(), dur:timer,
+        at:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})
+      }]});
+    }
+    setRunning(false); setTimer(0);
+  };
 
   return (
     <ScrollView style={{ flex:1, backgroundColor:T.bg }} contentContainerStyle={{ padding:16, paddingBottom:24 }} showsVerticalScrollIndicator={false}>
@@ -117,6 +149,70 @@ export default function HomeScreen({ log, upLog, data, last5, fmtT, totalSt, stu
         <Field T={T} value={log.notes||''} onCommit={v=>upLog({notes:v})}
           multiline placeholder="Anything on your mind…"
           style={{ minHeight:60, textAlignVertical:'top', color:T.sub }}/>
+      </Card>
+
+      {/* ── Study Section (moved from Study tab) ──────────────── */}
+      <View style={{ marginTop:8, marginBottom:4 }}>
+        <View style={{ flexDirection:'row', alignItems:'center', gap:8, marginBottom:12 }}>
+          <View style={{ height:1, flex:1, backgroundColor:T.border }}/>
+          <Text style={{ fontSize:10, fontWeight:'700', color:T.accent, letterSpacing:1.4, textTransform:'uppercase' }}>Study Zone</Text>
+          <View style={{ height:1, flex:1, backgroundColor:T.border }}/>
+        </View>
+      </View>
+
+      {/* Focus Timer */}
+      <Card T={T} accent>
+        <Text style={{ fontSize:10, fontWeight:'700', color:T.sub, letterSpacing:1.4, textTransform:'uppercase', textAlign:'center', marginBottom:16 }}>Focus Timer</Text>
+
+        <Text style={{ fontSize:60, fontWeight:'800', textAlign:'center', letterSpacing:2,
+          color:running?T.text:T.sub, fontVariant:['tabular-nums'] }}>
+          {fmtTimer(timer)}
+        </Text>
+
+        {running && (
+          <View style={{ flexDirection:'row', alignItems:'center', justifyContent:'center', gap:6, marginTop:6 }}>
+            <View style={{ width:6, height:6, borderRadius:3, backgroundColor:T.red }}/>
+            <Text style={{ fontSize:10, fontWeight:'700', color:T.red, letterSpacing:1 }}>RECORDING</Text>
+          </View>
+        )}
+
+        <Field T={T} value={subject} onCommit={() => {}}
+          onChangeText={setSubject}
+          placeholder="Subject / Topic" style={{ textAlign:'center', fontSize:14, marginTop:18, marginBottom:14 }}/>
+
+        <View style={{ flexDirection:'row', gap:8 }}>
+          <Btn T={T} col={running?T.red:T.accent} onPress={() => running?stopTimer():setRunning(true)} style={{ flex:1 }}>
+            {running?'⏹  Stop & Save':'▶  Start Session'}
+          </Btn>
+          {!running && timer>0 && (
+            <Btn T={T} col={T.sub} outline onPress={() => setTimer(0)} style={{ paddingHorizontal:16 }}>↺</Btn>
+          )}
+        </View>
+      </Card>
+
+      {/* Study Progress */}
+      <Card T={T}>
+        <Lbl T={T} right={`${Math.round(studyPct)}%`}>Daily Goal — {data.profile.goal_study}h</Lbl>
+        <PBar T={T} pct={studyPct} h={8}/>
+        <Text style={{ fontSize:11, color:T.dim, marginTop:7 }}>{(totalSt/3600).toFixed(2)}h studied today</Text>
+      </Card>
+
+      {/* Sessions list */}
+      <Card T={T}>
+        <Lbl T={T} right={totalSt>0?fmtT(totalSt).slice(0,5):''}>Sessions Today</Lbl>
+        {(log.sessions||[]).length===0
+          ? <Text style={{ fontSize:13, color:T.dim, paddingVertical:8 }}>No sessions yet — start the timer above.</Text>
+          : (log.sessions||[]).map((s,i) => (
+            <View key={i} style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center',
+              paddingVertical:10, borderBottomWidth:i<(log.sessions||[]).length-1?1:0, borderBottomColor:T.border }}>
+              <View>
+                <Text style={{ fontSize:13, fontWeight:'600', color:T.text }}>{s.s}</Text>
+                <Text style={{ fontSize:11, color:T.dim, marginTop:2 }}>{s.at}</Text>
+              </View>
+              <Text style={{ fontSize:13, fontWeight:'700', color:T.accent, fontVariant:['tabular-nums'] }}>{fmtTimer(s.dur).slice(0,5)}</Text>
+            </View>
+          ))
+        }
       </Card>
     </ScrollView>
   );

@@ -8,7 +8,7 @@ import Svg, { Path, Rect, Polyline, Circle, Line } from 'react-native-svg';
 import { darkT, lightT } from './src/theme/colors';
 import { useStore } from './src/hooks/useStore';
 import HomeScreen    from './src/screens/HomeScreen';
-import StudyScreen   from './src/screens/StudyScreen';
+import ExpenseScreen from './src/screens/ExpenseScreen';
 import GymScreen     from './src/screens/GymScreen';
 import DietScreen    from './src/screens/DietScreen';
 import HabitsScreen  from './src/screens/HabitsScreen';
@@ -17,7 +17,7 @@ const Tab = createBottomTabNavigator();
 
 // ── Nav icons ─────────────────────────────────────────────────
 function HomeIc({c,s})  { return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><Polyline points="9 22 9 12 15 12 15 22"/></Svg>; }
-function BookIc({c,s})  { return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><Path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></Svg>; }
+function WalletIc({c,s}){ return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Rect x="2" y="5" width="20" height="15" rx="2"/><Path d="M16 10h4v4h-4z"/><Line x1="2" y1="10" x2="22" y2="10"/></Svg>; }
 function GymIc({c,s})   { return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Path d="M6 5v14M18 5v14M4 7h4M16 7h4M4 17h4M16 17h4M2 10h4M18 10h4M2 14h4M18 14h4"/></Svg>; }
 function FoodIc({c,s})  { return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Path d="M12 2a7 7 0 017 7c0 3.87-3.13 7-7 7S5 12.87 5 9a7 7 0 017-7z"/><Path d="M12 16v6M9 19h6"/></Svg>; }
 function CheckIc({c,s}) { return <Svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><Rect x="3" y="3" width="7" height="7" rx="1"/><Rect x="14" y="3" width="7" height="7" rx="1"/><Rect x="3" y="14" width="7" height="7" rx="1"/><Polyline points="14 18 16 20 20 15"/></Svg>; }
@@ -62,8 +62,8 @@ function AppHeader({ T, dark, setDark }) {
 // ── Tab Bar ───────────────────────────────────────────────────
 function AppTabBar({ state, descriptors, navigation, T }) {
   const insets = useSafeAreaInsets();
-  const ICONS  = [HomeIc, BookIc, GymIc, FoodIc, CheckIc];
-  const LABELS = ['Home','Study','Gym','Diet','Habits'];
+  const ICONS  = [HomeIc, WalletIc, GymIc, FoodIc, CheckIc];
+  const LABELS = ['Home','Expenses','Gym','Diet','Habits'];
   return (
     <View style={{
       flexDirection: 'row',
@@ -133,8 +133,8 @@ function Main() {
           <Tab.Screen name="Home">
             {() => <HomeScreen {...shared} fmtT={fmtT} totalSt={totalSt} studyPct={studyPct}/>}
           </Tab.Screen>
-          <Tab.Screen name="Study">
-            {() => <StudyScreen {...shared} fmtT={fmtT} totalSt={totalSt} studyPct={studyPct}/>}
+          <Tab.Screen name="Expenses">
+            {() => <ExpenseScreen {...shared}/>}
           </Tab.Screen>
           <Tab.Screen name="Gym">
             {() => <GymScreen {...shared}/>}
