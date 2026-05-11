@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Dhanush Jaddu",
+    "slug": "dhanushjaddu",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0c0c0e"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#6c63ff"
+      },
+      "package": "com.dhanushjaddu.tracker",
+      "permissions": ["android.permission.ACTIVITY_RECOGNITION"]
+    },
+    "plugins": [
+      ["expo-sensors", { "motionPermission": "Allow Dhanush Jaddu to track your steps." }]
+    ]
+  }
+}
