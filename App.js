@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Platform } from 'react-native';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { View, Text, TouchableOpacity, StatusBar, Platform, Animated, Dimensions, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -91,9 +91,116 @@ function AppTabBar({ state, descriptors, navigation, T }) {
   );
 }
 
+// ── Splash Screen ─────────────────────────────────────────────
+function SplashScreen({ onFinish, T }) {
+  const fadeAnim    = useRef(new Animated.Value(0)).current;
+  const scaleAnim   = useRef(new Animated.Value(0.8)).current;
+  const slideUp     = useRef(new Animated.Value(30)).current;
+  const dotScale1   = useRef(new Animated.Value(0)).current;
+  const dotScale2   = useRef(new Animated.Value(0)).current;
+  const dotScale3   = useRef(new Animated.Value(0)).current;
+  const tagFade     = useRef(new Animated.Value(0)).current;
+  const exitFade    = useRef(new Animated.Value(1)).current;
+  const exitScale   = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    // Entry animations
+    Animated.sequence([
+      // Fade in + scale up the main content
+      Animated.parallel([
+        Animated.timing(fadeAnim,  { toValue:1, duration:600, useNativeDriver:true }),
+        Animated.spring(scaleAnim, { toValue:1, friction:8, tension:40, useNativeDriver:true }),
+        Animated.timing(slideUp,   { toValue:0, duration:600, useNativeDriver:true }),
+      ]),
+      // Animate the 3 loading dots one by one
+      Animated.stagger(150, [
+        Animated.spring(dotScale1, { toValue:1, friction:5, tension:80, useNativeDriver:true }),
+        Animated.spring(dotScale2, { toValue:1, friction:5, tension:80, useNativeDriver:true }),
+        Animated.spring(dotScale3, { toValue:1, friction:5, tension:80, useNativeDriver:true }),
+      ]),
+      // Fade in tagline
+      Animated.timing(tagFade, { toValue:1, duration:400, useNativeDriver:true }),
+      // Hold for a moment
+      Animated.delay(800),
+      // Exit animation
+      Animated.parallel([
+        Animated.timing(exitFade,  { toValue:0, duration:400, useNativeDriver:true }),
+        Animated.timing(exitScale, { toValue:1.1, duration:400, useNativeDriver:true }),
+      ]),
+    ]).start(() => onFinish());
+  }, []);
+
+  const hour  = new Date().getHours();
+  const greet = hour<5?'Late Night Owl':'Good '+(hour<12?'Morning':'Afternoon');
+
+  return (
+    <Animated.View style={{
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: T.bg,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 999,
+      opacity: exitFade,
+      transform: [{ scale: exitScale }],
+    }}>
+      <Animated.View style={{
+        alignItems: 'center',
+        opacity: fadeAnim,
+        transform: [{ scale: scaleAnim }, { translateY: slideUp }],
+      }}>
+        {/* Accent glow circle */}
+        <View style={{
+          width: 90, height: 90, borderRadius: 45,
+          backgroundColor: T.aDim,
+          borderWidth: 2, borderColor: T.aBd,
+          alignItems: 'center', justifyContent: 'center',
+          marginBottom: 24,
+        }}>
+          <Text style={{ fontSize: 40 }}>DJ</Text>
+        </View>
+
+        {/* Greeting */}
+        <Text style={{
+          fontSize: 14, fontWeight: '700', color: T.accent,
+          letterSpacing: 2, textTransform: 'uppercase', marginBottom: 8,
+        }}>{greet}</Text>
+
+        {/* Name */}
+        <Text style={{
+          fontSize: 32, fontWeight: '800', color: T.text,
+          letterSpacing: -0.5, marginBottom: 6,
+        }}>Dhanush Jaddu</Text>
+
+        {/* Tagline */}
+        <Animated.Text style={{
+          fontSize: 12, color: T.sub, letterSpacing: 0.5,
+          opacity: tagFade, marginBottom: 28,
+        }}>Track Everything. Stay Consistent.</Animated.Text>
+
+        {/* Loading dots */}
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[dotScale1, dotScale2, dotScale3].map((dot, i) => (
+            <Animated.View key={i} style={{
+              width: 8, height: 8, borderRadius: 4,
+              backgroundColor: i === 1 ? T.accent : T.aBd,
+              transform: [{ scale: dot }],
+            }} />
+          ))}
+        </View>
+      </Animated.View>
+
+      {/* Bottom branding */}
+      <View style={{ position: 'absolute', bottom: 50, alignItems: 'center' }}>
+        <Text style={{ fontSize: 10, color: T.dim, letterSpacing: 1 }}>BUILT WITH DISCIPLINE</Text>
+      </View>
+    </Animated.View>
+  );
+}
+
 // ── Main ──────────────────────────────────────────────────────
 function Main() {
   const [dark, setDark] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   const T = dark ? darkT : lightT;
   const { data, log, upLog, loaded } = useStore();
 
@@ -124,6 +231,7 @@ function Main() {
 
   return (
     <View style={{ flex:1, backgroundColor:T.bg }}>
+      {showSplash && <SplashScreen T={T} onFinish={() => setShowSplash(false)} />}
       <StatusBar barStyle={dark?'light-content':'dark-content'} backgroundColor={T.bg}/>
       <AppHeader T={T} dark={dark} setDark={setDark}/>
       <NavigationContainer>
